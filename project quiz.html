@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz</title>
+<style>
+    /* CSS styles */
+    body {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+        margin: 0;
+    }
+    
+    header {
+        background: linear-gradient(to right, #0d05ef, #fe039e);
+        color: #fff;
+        padding: 20px 0;
+        text-align: center;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+    }
+    
+    footer {
+        background: linear-gradient(to right,  #0d05ef, #fe039e);
+        color: #fff;
+        padding: 20px 0;
+        text-align: center;
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+    }
+    
+    #timer {
+        position: fixed;
+        top: 60px; /* Adjust the top position to prevent overlapping with header */
+        right: 10px;
+        box-shadow: 0px 2px 20px white;
+    }
+
+    header h1 {
+        font-size: 36px;
+        margin-bottom: 10px;
+    }
+   
+    .question-container {
+        display: none;
+        text-align: left; /* Align text to the left */
+    }
+    .correct-answer {
+        color: green;
+    }
+    .wrong-answer {
+        color: red;
+    }
+    footer{
+        background: linear-gradient(to right,  #0d05ef, #fe039e);
+        color: #fff;
+        padding: 20px 0;
+        text-align: center;
+        width: 100%;
+        margin-top: auto; /* Push the footer to the bottom */
+    }
+
+    #options {
+        text-align: left; /* Align options to the left */
+    }
+
+    #review-section {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        max-height: 80%;
+        overflow-y: auto; /* Add overflow-y to enable vertical scrolling */
+        background-color: #fff; /* Add background color to make content readable */
+        padding: 20px;
+        border: 2px solid #ccc; /* Add border for visibility */
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1); /* Add box-shadow for depth */
+        z-index: 999; /* Ensure it's on top of other content */
+    }
+    #review-container {
+        position: relative;
+        max-width: 600px; /* Adjust max-width as needed */
+        margin: 20px auto; /* Center the container */
+        background-color: #fff;
+        padding: 20px;
+        border: 2px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Back to Result button */
+    #backToResult {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1000;
+    }
+    
+</style>
+</head>
+<body>
+    <header>
+        <h1>Online Learning Platform</h1>
+    </header>
+    
+<div id="timer" style="background-color:#fe039e;color:white;text-align:center;padding:10px;border:none;font-size:20px;">Time Left: <span id="time"></span></div>
+<div id="instructions">
+    <h3 style="text-align:left;">Instructions:</h3>
+    <ul style="text-align:left;">
+        <li>This quiz consists of 10 multiple-choice questions.</li>
+        <li>You have a total of 1 minute to complete the quiz.</li>
+        <li>Each question has multiple options, and you need to select the correct one.</li>
+        <li>Once you start the quiz, the timer will begin counting down.</li>
+        <li>Once you have answered all the questions or when the time runs out, the quiz will automatically end.</li>
+        <li>You can also end the quiz manually by clicking the "Finish" button.</li>
+        <li>Once you have answered all the questions or when the time runs out, the quiz will automatically end.</li>
+        <li>You can also end the quiz manually by clicking the "Finish" button.</li>
+    </ul>
+    <h4>Good Luck!</h4>
+</div>
+<button id="start">Start Quiz</button>
+<div id="quiz">
+    <div class="question-container">
+        <h2 id="question">Question 1</h2>
+        <div id="options"></div>
+        <button id="saveNext">Save & Next</button>
+        <button id="clear">Clear</button>
+    </div>
+    <button id="finish" style="display: none;">Finish</button>
+</div>
+<div id="result" style="display: none;">
+    <h2>Your Score</h2>
+    <p id="score"></p>
+    <button id="review">Review Answers</button>
+</div>
+<div id="review-section" style="display: none;">
+    <button id="backToResult">Back to Result</button> <!-- New button added -->
+    <h2>Review Answers</h2>
+    <div id="review-content"></div>
+</div>
+<footer>
+    <p>&copy; 2024 Online Learning Platform. All rights reserved.</p>
+</footer>
+
+<script>
+    let questions = [
+        {
+            question: "What is the sum of first 10 natural numbers?",
+            options: ["66", "55", "44", "45"],
+            correctAnswer: 1 // Index of correct answer in options array
+        },
+        {
+            question: "Which of the following is a noble gas?",
+            options: ["Nitrogen", "Oxygen", "Argon","Hydrogen"],
+            correctAnswer: 2
+        },
+        {
+            question: "Which of the following is a scalar quantity?",
+            options: ["Velocity", "Distance", "Force","Acceleration"],
+            correctAnswer: 1
+        },
+        {
+            question: "Which of the following is not a prime number?",
+            options: ["9", "5", "7","11"],
+            correctAnswer: 0
+        },
+        {
+            question: "What is the chemical symbol for water?",
+            options: ["H2O", "CO2", "NaCl", "O2"],
+            correctAnswer: 0
+        },
+        {
+            question: "What is the atomic number of carbon?",
+            options: ["5", "6", "7", "8"],
+            correctAnswer: 1
+        },
+        {
+            question: "Which of the following is a prime number?",
+            options: ["10", "15", "21", "7"],
+            correctAnswer: 3
+        },
+        {
+            question: "What is the SI unit of temperature?",
+            options: ["Kelvin", "Celsius", "Fahrenheit", "Joule"],
+            correctAnswer: 0
+        },
+        {
+            question: "What is the chemical symbol for gold?",
+            options: ["Au", "Ag", "Fe", "Hg"],
+            correctAnswer: 0
+        },
+        {
+            question: "What is the capital of india?",
+            options: ["Chennai", "Hyderabad", "Mumbai", "Delhi"],
+            correctAnswer: 3
+        }
+
+        
+    ];
+    let answers = [];
+    let currentQuestion = 0;
+    let score = 0;
+    let timeLeft = 60; // in seconds
+    let timerInterval;
+
+    document.getElementById("start").addEventListener("click", function() {
+        document.getElementById("start").style.display = "none";
+        document.getElementById("instructions").style.display = "none";
+        document.querySelector(".question-container").style.display = "block";
+        document.getElementById("finish").style.display = "block"; // Show the finish button
+        displayQuestion();
+        startTimer();
+    });
+
+    document.getElementById("saveNext").addEventListener("click", function() {
+        saveAnswer();
+        currentQuestion++;
+        if (currentQuestion < questions.length) {
+            displayQuestion();
+        } else {
+            endQuiz();
+        }
+    });
+
+    document.getElementById("clear").addEventListener("click", function() {
+        document.querySelectorAll('input[type="radio"]').forEach(radio => radio.checked = false);
+    });
+
+    document.getElementById("finish").addEventListener("click", function() {
+        endQuiz();
+    });
+
+    document.getElementById("review").addEventListener("click", function() {
+        reviewAnswers();
+    });
+
+    document.getElementById("backToResult").addEventListener("click", function() {
+        document.getElementById("review-section").style.display = "none";
+        document.getElementById("result").style.display = "block";
+    });
+
+    function displayQuestion() {
+        let questionObj = questions[currentQuestion];
+        document.getElementById("question").textContent = `${currentQuestion + 1}. ${questionObj.question}`;
+        let optionsDiv = document.getElementById("options");
+        optionsDiv.innerHTML = "";
+        let optionLetters = ['A', 'B', 'C', 'D'];
+        questionObj.options.forEach((option, index) => {
+            let optionInput = document.createElement("input");
+            optionInput.type = "radio";
+            optionInput.name = "option";
+            optionInput.value = index;
+            optionsDiv.appendChild(optionInput);
+            let optionLabel = document.createElement("label");
+            optionLabel.textContent = optionLetters[index] + ". " + option; // Add option letters
+            optionsDiv.appendChild(optionLabel);
+            optionsDiv.appendChild(document.createElement("br"));
+        });
+    }
+    
+
+    function saveAnswer() {
+        let selectedOption = document.querySelector('input[name="option"]:checked');
+        answers[currentQuestion] = selectedOption ? parseInt(selectedOption.value) : null;
+    }
+
+    function endQuiz() {
+        clearInterval(timerInterval);
+        calculateScore();
+        document.getElementById("quiz").style.display = "none";
+        document.getElementById("result").style.display = "block";
+        document.getElementById("score").textContent = `Score: ${score}`;
+        document.getElementById("start").style.display = "none";
+    }
+
+    function calculateScore() {
+        for (let i = 0; i < questions.length; i++) {
+            if (answers[i] === questions[i].correctAnswer) {
+                score++;
+            }
+        }
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(function() {
+            timeLeft--;
+            document.getElementById("time").textContent = formatTime(timeLeft);
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                endQuiz();
+            }
+        }, 1000);
+    }
+
+    function formatTime(seconds) {
+        let minutes = Math.floor(seconds / 60);
+        let remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;
+    }
+
+    function reviewAnswers() {
+        let reviewContent = document.getElementById("review-content");
+        reviewContent.innerHTML = "";
+        for (let i = 0; i < questions.length; i++) {
+            let reviewItem = document.createElement("div");
+    
+            // Display question number and question text inline
+            let questionNumber = document.createElement("span");
+            questionNumber.textContent = `${i + 1}. `;
+            questionNumber.classList.add("question-number");
+            reviewItem.appendChild(questionNumber);
+    
+            let questionText = document.createElement("span");
+            questionText.textContent = questions[i].question;
+            reviewItem.appendChild(questionText);
+    
+            // Display correct answer
+            let correctAnswerText = document.createElement("p");
+            correctAnswerText.textContent = "Correct Answer: " + questions[i].options[questions[i].correctAnswer];
+            correctAnswerText.classList.add("correct-answer");
+            reviewItem.appendChild(correctAnswerText);
+    
+            // Display user's answer if available
+            if (answers[i] !== null) {
+                let userAnswerText = document.createElement("p");
+                userAnswerText.textContent = "Your Answer: " + questions[i].options[answers[i]];
+                userAnswerText.classList.add(answers[i] === questions[i].correctAnswer ? "correct-answer" : "wrong-answer");
+                reviewItem.appendChild(userAnswerText);
+            } else {
+                let noAnswerText = document.createElement("p");
+                noAnswerText.textContent = "No answer provided";
+                noAnswerText.classList.add("wrong-answer");
+                reviewItem.appendChild(noAnswerText);
+            }
+    
+            reviewContent.appendChild(reviewItem);
+        }
+        document.getElementById("review-section").style.display = "block";
+    }
+    
+</script>
+</body>
+</html>
